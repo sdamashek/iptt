@@ -18,15 +18,42 @@
 from irc.bot import ServerSpec, SingleServerIRCBot
 from os.path import basename
 from json import loads, dumps
-from CONFIG import CHANNEL, NICK, NICKPASS, HOST, CTRLCHAR
+from handler import BotHandler
+import logging
+CHANNEL = "#botwar"
+NICK = "ipttbot"
+HOST = "irc.freenode.org"
 
 class IrcBot(SingleServerIRCBot):
-
-    def __init__(self, channel, nick, nickpass, host, port=6667):
+    def __init__(self, nick, host, port=6667):
         """Setup everything.
         """
-        serverinfo = ServerSpec(host, port, nickpass)
+        serverinfo = ServerSpec(host, port, "")
         SingleServerIRCBot.__init__(self, [serverinfo], nick, nick)
         
     def handle_msg(self, msgtype, c, e):
         msg = " ".join(e.arguments)
+        nick = e.source.nick
+        if e.target[0] == '#':
+            channel = e.target
+        else:
+            channel = "private"
+            self.handler.handle(
+                {'type': msgtype,
+                 'data': msg,
+                 'sender': nick,
+                 'channel': channel})
+
+    def on_welcome(self, c, e):
+        logging.info("Connected to server.")
+        self.handler = BotHandler(c)
+        c.join(CHANNEL)
+        logging.info("Joined channel %s." % CHANNEL)
+
+def main():
+    logging.basicConfig(level=logging.INFO)
+    bot = IrcBot(NICK, HOST)
+    bot.start()
+
+if __name__ == "__main__":
+    main()
