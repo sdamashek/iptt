@@ -1,0 +1,17 @@
+{
+    "sayhi": {
+        "trigger": "!sayhi",
+        "triggerargs": {
+            "type": "message",
+            "nick": "ANY",
+            "chan": "ANY"
+        },
+        "result": {
+            "type": "message",
+            "to": "REPLY",
+            "content": "Hi, potato!"
+        }
+    }
+}
+            
+

@@ -14,11 +14,21 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+import json, re
+
+def get_commands(mtype=None):
+    cmds = json.loads(open("commands.json").read())
+    if mtype is None: return cmds
+    newcmds = {}
+    for i in cmds:
+        if cmds[i]["triggerargs"]["type"] == mtype:
+            newcmds[i] = cmds[i]
+    return newcmds
 
 class BotHandler:
     def __init__(self, connection):
         self.connection = connection
-        
+    
     def handle(self, opts):
         mtype = opts['type']
         mdata = opts['data']
@@ -33,10 +43,7 @@ class BotHandler:
         elif mtype == 'nick':
             pass
         elif mtype == 'message':
-            if mchannel == 'private':
-                pass
-            else:
-                pass
+            self.handle_message(mdata, mchannel, msender)
         elif mtype == 'action':
             if mchannel == 'private':
                 pass
@@ -50,6 +57,30 @@ class BotHandler:
             pass
         elif mtype == 'kick':
             pass
-        
-        
-        
+
+    def handle_message(self, data, channel, sender):
+        cmds = get_commands('message')
+        for i in cmds:
+            x = re.match(cmds[i]["trigger"], data)
+            targs = cmds[i]["triggerargs"]
+            if x:
+                if (targs["nick"] == sender or targs["nick"] == "ANY"):
+                    if (targs["chan"] == channel or targs["chan"] == "ANY"):
+                        self.do_thing(cmds[i]["result"], 
+                            {"channel": channel, "sender": sender}, x)
+
+    def do_thing(self, thing, data, trigger):
+        rtype = thing["type"]
+        channel = data["channel"]
+        sender = data["sender"]
+        if rtype == "message":
+            if thing["to"] == "REPLY":
+                if channel == "private":
+                    cto = sender
+                else:
+                    cto = channel
+            else:
+                cto = thing["to"]
+            message = thing["content"]
+            self.connection.send_raw("PRIVMSG %s :%s" % (cto, message))
+
