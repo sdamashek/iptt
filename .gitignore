@@ -1,5 +1,5 @@
 *.py[cod]
-database.db
+config.py
 
 # C extensions
 *.so

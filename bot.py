@@ -15,8 +15,6 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-import logging
-from sqlalchemy import *
 from irc.bot import ServerSpec, SingleServerIRCBot
 from os.path import basename
 from json import loads, dumps
@@ -29,31 +27,6 @@ class IrcBot(SingleServerIRCBot):
         """
         serverinfo = ServerSpec(host, port, nickpass)
         SingleServerIRCBot.__init__(self, [serverinfo], nick, nick)
-        self.engine = create_engine('sqlite:///database.db')
-        self.conn = self.engine.connect()
-    
-    def create_tables(self):
-        self.metadata = MetaData()
-        self.commands = Table('users', meta, autoload=True, autoload_with=self.engine)
         
     def handle_msg(self, msgtype, c, e):
         msg = " ".join(e.arguments)
-        
-        
-    def get_conditions(self):
-        """Returns a list of functions to call with the message"""
-        s = select([self.commands])
-        conditions = self.conn.execute(s)
-        return [(hash_condition(c.type), hash_consequence(c.consequence), dumps(c.params)) for c in conditions]
-
-    def hash_condition(self, type):
-        """Returns a function based on the type of function and command passed"""
-        return {
-            'kick': lambda message, params, messtype, e: messtype == 'kick' and (params['target'] == -1 or params['target'] == e.source.nick)
-        }[type]
-    def hash_consequence(self, type):
-        """Returns a function based on the consequence passed"""
-        return {
-            'kick': lambda params, c: c.send_raw("KICK %s %s :%s" % ())
-        }[type]
-        
