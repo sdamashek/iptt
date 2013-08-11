@@ -21,7 +21,7 @@ def get_commands(mtype=None):
     if mtype is None: return cmds
     newcmds = {}
     for i in cmds:
-        if cmds[i]["triggerargs"]["type"] == mtype:
+        if cmds[i]["trigger"] == mtype:
             newcmds[i] = cmds[i]
     return newcmds
 
@@ -61,8 +61,8 @@ class BotHandler:
     def handle_message(self, data, channel, sender):
         cmds = get_commands('message')
         for i in cmds:
-            x = re.match(cmds[i]["trigger"], data)
             targs = cmds[i]["triggerargs"]
+            x = re.match(targs["data"], data)
             if x:
                 if (targs["nick"] == sender or targs["nick"] == "ANY"):
                     if (targs["chan"] == channel or targs["chan"] == "ANY"):

@@ -1,15 +1,15 @@
 {
     "sayhi": {
-        "trigger": "!sayhi",
+        "trigger": "message",
         "triggerargs": {
-            "type": "message",
+            "data": "^lol$",
             "nick": "ANY",
             "chan": "ANY"
         },
         "result": {
             "type": "message",
             "to": "REPLY",
-            "content": "Hi, potato!"
+            "content": "Hi!"
         }
     }
 }
