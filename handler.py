@@ -37,9 +37,16 @@ class BotHandler:
                 pass
             else:
                 pass
+        elif mtype == 'action':
+            if mchannel == 'private':
+                pass
+            else:
+                pass
         elif mtype == 'join':
             pass
         elif mtype == 'part':
+            pass
+        elif mtype == 'quit':
             pass
         elif mtype == 'kick':
             pass

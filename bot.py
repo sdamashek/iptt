@@ -20,7 +20,7 @@ from os.path import basename
 from json import loads, dumps
 from handler import BotHandler
 import logging
-CHANNEL = "#botwar"
+CHANNEL = "#iptt"
 NICK = "ipttbot"
 HOST = "irc.freenode.org"
 
@@ -38,17 +38,40 @@ class IrcBot(SingleServerIRCBot):
             channel = e.target
         else:
             channel = "private"
-            self.handler.handle(
-                {'type': msgtype,
-                 'data': msg,
-                 'sender': nick,
-                 'channel': channel})
+        info = {'type': msgtype, 'data': msg, 'sender': nick, 
+                'channel': channel}
+        logging.info(repr(info))
+        self.handler.handle(info)
 
     def on_welcome(self, c, e):
         logging.info("Connected to server.")
         self.handler = BotHandler(c)
         c.join(CHANNEL)
         logging.info("Joined channel %s." % CHANNEL)
+
+    def on_pubmsg(self, c, e):
+        self.handle_msg('message', c, e)
+
+    def on_privmsg(self, c, e):
+        self.handle_msg('message', c, e)
+
+    def on_action(self, c, e):
+        self.handle_msg('action', c, e)
+
+    def on_join(self, c, e):
+        self.handle_msg('join', c, e)
+
+    def on_part(self, c, e):
+        self.handle_msg('part', c, e)
+
+    def on_kick(self, c, e):
+        self.handle_msg('kick', c, e)
+
+    def on_quit(self, c, e):
+        self.handle_msg('quit', c, e)
+
+    def on_mode(self, c, e):
+        self.handle_msg('mode', c, e)
 
 def main():
     logging.basicConfig(level=logging.INFO)
