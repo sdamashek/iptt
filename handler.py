@@ -63,13 +63,12 @@ class BotHandler:
             self.handle_join(mdata, mchannel, msender, mhostmask)
         elif mtype == 'part':
             self.handle_part(mdata, mchannel, msender, mhostmask)
-        elif mtype == 'quit':
-            pass
         elif mtype == 'kick':
-            pass
+            self.handle_kick(mdata, mchannel, msender, mhostmask)
 
     def do_eligible(self, cmd, data, channel, sender, hostmask):
         targs = cmd["triggerargs"]
+        targs["data"] = self.do_rep(None, data, targs["data"])
         x = re.match(targs["data"], data)
         if x:
             logging.debug("Trigger matches")
@@ -79,6 +78,11 @@ class BotHandler:
                     logging.debug("nick!user@host matches, running command")
                     self.do_thing(cmd["result"], {"channel": channel,
                         "sender": sender}, x)
+
+    def handle_kick(self, data, channel, sender, hostmask):
+        cmds = get_commands('kick')
+        for i in cmds:
+            self.do_eligible(cmds[i], data, channel, sender, hostmask)
 
     def handle_nick(self, data, channel, sender, hostmask):
         cmds = get_commands('nick')
@@ -103,6 +107,8 @@ class BotHandler:
 
     def do_rep(self, match, data, string):
         try:
+            conf = json.loads(open("config.json").read())
+            string = string.replace("{nick}", conf["nick"])
             string = string.replace("{sender}", data["sender"])
             string = string.replace("{chan}", data["channel"])
             string = string.replace("{g1}", match.group(1))
@@ -114,6 +120,8 @@ class BotHandler:
             string = string.replace("{g7}", match.group(7))
             string = string.replace("{g8}", match.group(8))
             string = string.replace("{g9}", match.group(9))
+        except Exception, e:
+            pass
         finally:
             return string
 
@@ -135,6 +143,11 @@ class BotHandler:
             self.connection.send_raw("PRIVMSG %s :%s" % (cto, message))
         # Nick
         if rtype == "nick":
+            config = json.loads(open("config.json").read())
+            config["nick"] = self.do_rep(trigger, data, thing["newnick"])
+            f = open("config.json", "w")
+            f.write(json.dumps(config))
+            f.close()
             self.connection.send_raw("NICK %s" % self.do_rep(trigger, data, thing["newnick"]))
         # Join
         if rtype == "join":
@@ -152,11 +165,13 @@ class BotHandler:
         if rtype == "mode":
             thing["mode"] = self.do_rep(trigger, data, thing["mode"])
             thing["chan"] = self.do_rep(trigger, data, thing["chan"])
+            if thing["chan"][0] != '#': thing["chan"] = "#%s" % thing["chan"]
+            thing["chan"] = thing["chan"].split(",")[0]
             self.connection.send_raw("MODE %s %s" % (thing["chan"], thing["mode"]))
         # Kick
         if rtype == "kick":
             thing["nick"] = self.do_rep(trigger, data, thing["nick"])
             thing["chan"] = self.do_rep(trigger, data, thing["chan"])
+            if thing["chan"][0] != '#': thing["chan"] = "#%s" % thing["chan"]
+            thing["chan"] = thing["chan"].split(",")[0]
             self.connection.send_raw("KICK %s %s" % (thing["chan"], thing["nick"]))
-        
-

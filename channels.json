@@ -3,6 +3,10 @@
         ".*"
     ], 
     "autojoin": [
-        "#botwar"
-    ]
+        "#botwar",
+        "#botters-test",
+        "#botters",
+        "##fwilson"
+    ],
+    "private": ["private"]
 }

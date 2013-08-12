@@ -21,14 +21,11 @@ from json import loads, dumps
 from handler import BotHandler
 import logging
 import json
-NICK = "ipttbot"
-HOST = "irc.freenode.org"
-
 class IrcBot(SingleServerIRCBot):
-    def __init__(self, nick, host, port=6667):
+    def __init__(self, nick, host, nickpass, port=6667):
         """Setup everything.
         """
-        serverinfo = ServerSpec(host, port, "")
+        serverinfo = ServerSpec(host, port, nickpass)
         SingleServerIRCBot.__init__(self, [serverinfo], nick, nick)
         
     def handle_msg(self, msgtype, c, e):
@@ -68,18 +65,19 @@ class IrcBot(SingleServerIRCBot):
     def on_kick(self, c, e):
         self.handle_msg('kick', c, e)
 
-    def on_quit(self, c, e):
-        self.handle_msg('quit', c, e)
-
     def on_mode(self, c, e):
         self.handle_msg('mode', c, e)
 
     def on_nick(self, c, e):
         self.handle_msg('nick', c, e)
 
+    def get_version(self):
+        return "IPTTBot -- https://github.com/Vacation9/iptt -- developed by Fox Wilson and Samuel Damashek"
+
 def main():
     logging.basicConfig(level=logging.DEBUG)
-    bot = IrcBot(NICK, HOST)
+    conf = json.loads(open("config.json").read())
+    bot = IrcBot(conf["nick"], conf["host"], conf["nickpass"])
     bot.start()
 
 if __name__ == "__main__":

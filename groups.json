@@ -4,6 +4,11 @@
     ],
     "admin": [
         ".*@wikipedia/Fox-Wilson",
-        ".*@wikipedia/Vacation9"
+        ".*@wikipedia/Vacation9",
+        ".*!N4Y@Nothing4You.w.tf-w.tf",
+        ".*michael@michaelmarley.com"
+    ],
+    "fwilquote": [
+        ".*@wikipedia/Fox-Wilson"
     ]
 }

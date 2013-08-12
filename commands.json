@@ -1,18 +1,84 @@
 {
-    "join":{"trigger":"message","triggerargs":{"data":"!join (.*)","nickgroup":"admin","changroup":"all"},"result":{"type":"join","chan":"{g1}"}},
-    "part":{"trigger":"message","triggerargs":{"data":"!part (.*)","nickgroup":"admin","changroup":"all"},"result":{"type":"part","chan":"{g1}"}},
-
-    "autoopadmins": {
-        "trigger": "join",
+    "join":{"trigger":"message","triggerargs":{"data":"{nick}: join channel (.*)","nickgroup":"admin","changroup":"all"},"result":{"type":"join","chan":"{g1}"}},
+    "part":{"trigger":"message","triggerargs":{"data":"{nick}: part channel (.*)","nickgroup":"admin","changroup":"all"},"result":{"type":"part","chan":"{g1}"}},
+    "aopa":{"trigger":"join","triggerargs":{"data":".*","nickgroup":"admin","changroup":"all"},"result":{"type":"mode","chan":"{chan}","mode":"+o {sender}"}},
+    "nick":{"trigger": "message","triggerargs": {"data": "{nick}: change nick to (.*)","nickgroup": "admin","changroup": "all"},"result": {"type": "nick","newnick": "{g1}"}},
+    "setmode": {"trigger": "message","triggerargs": {"data": "{nick}: set mode (.*)","nickgroup": "admin","changroup": "all"},"result": {"type": "mode","chan": "{chan}","mode": "{g1}"}},
+    "tell": {"trigger": "message","triggerargs":{"data": "say (.*) to (.*)","nickgroup":"admin","changroup":"private"},"result":{"type":"message","to":"{g2}","content":"{g1}"}},
+    "csrequest": {
+        "trigger": "message",
         "triggerargs": {
-            "data": ".*",
+            "data": "{nick}: request (.*) on (.*)",
+            "nickgroup": "admin",
+            "changroup": "all"
+        },
+        "result": {
+            "type": "message",
+            "to": "ChanServ",
+            "content": "{g1} {g2}"
+        }
+    },
+    "kickrequest": {
+        "trigger": "message",
+        "triggerargs": {
+            "data": "{nick}: kick (.*) from (.*)",
+            "nickgroup": "admin",
+            "changroup": "all"
+        },
+        "result": {
+            "type": "kick",
+            "chan": "{g2}",
+            "nick": "{g1}"
+        }
+    },
+    "rejoinonkick": {
+        "trigger": "kick",
+        "triggerargs": {
+            "data": ".*{nick}.*",
+            "nickgroup": "all",
+            "changroup": "all"
+        },
+        "result": {
+            "type": "join",
+            "chan": "{chan}"
+        }
+    },
+    "rejoinonremove": {
+        "trigger": "part",
+        "triggerargs": {
+            "data": "requested by .*",
+            "nickgroup": "all",
+            "changroup": "all"
+        },
+        "result": {
+            "type": "join",
+            "chan": "{chan}"
+        }
+    },
+    "removebans": {
+        "trigger": "message",
+        "triggerargs": {
+            "data": "{nick}: remove bans on (.*) in (.*)",
             "nickgroup": "admin",
             "changroup": "all"
         },
         "result": {
             "type": "mode",
-            "chan": "{chan}",
-            "mode": "+o {sender}"
+            "chan": "{g2}",
+            "mode": "-qb {g1} {g1}"
+        }
+    },
+    "csfantasycmd": {
+        "trigger": "message",
+        "triggerargs": {
+            "data": "ChanServ: (op|deop|voice|devoice)",
+            "nickgroup": "admin",
+            "changroup": "all"
+        },
+        "result": {
+            "type": "message",
+            "to": "ChanServ",
+            "content": "{g1} {chan} {sender}"
         }
     }
 }
