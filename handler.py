@@ -19,10 +19,10 @@ import json, re, logging
 def get_commands(mtype=None):
     cmds = json.loads(open("commands.json").read())
     if mtype is None: return cmds
-    newcmds = {}
+    newcmds = []
     for i in cmds:
-        if cmds[i]["trigger"] == mtype:
-            newcmds[i] = cmds[i]
+        if i["trigger"] == mtype:
+            newcmds += [i]
     return newcmds
 
 def mask_in_group(mask, group):
@@ -82,28 +82,28 @@ class BotHandler:
     def handle_kick(self, data, channel, sender, hostmask):
         cmds = get_commands('kick')
         for i in cmds:
-            self.do_eligible(cmds[i], data, channel, sender, hostmask)
+            self.do_eligible(i, data, channel, sender, hostmask)
 
     def handle_nick(self, data, channel, sender, hostmask):
         cmds = get_commands('nick')
         for i in cmds:
             logging.debug("Testing nick command %s" % i)
-            self.do_eligible(cmds[i], data, channel, sender, hostmask)
+            self.do_eligible(i, data, channel, sender, hostmask)
 
     def handle_message(self, data, channel, sender, hostmask):
         cmds = get_commands('message')
         for i in cmds:
-            self.do_eligible(cmds[i], data, channel, sender, hostmask)
+            self.do_eligible(i, data, channel, sender, hostmask)
 
     def handle_join(self, data, channel, sender, hostmask):
         cmds = get_commands('join')
         for i in cmds:
-            self.do_eligible(cmds[i], data, channel, sender, hostmask)
+            self.do_eligible(i, data, channel, sender, hostmask)
 
     def handle_part(self, data, channel, sender, hostmask):
         cmds = get_commands('part')
         for i in cmds:
-            self.do_eligible(cmds[i], data, channel, sender, hostmask)
+            self.do_eligible(i, data, channel, sender, hostmask)
 
     def do_rep(self, match, data, string):
         try:
@@ -111,15 +111,12 @@ class BotHandler:
             string = string.replace("{nick}", conf["nick"])
             string = string.replace("{sender}", data["sender"])
             string = string.replace("{chan}", data["channel"])
-            string = string.replace("{g1}", match.group(1))
-            string = string.replace("{g2}", match.group(2))
-            string = string.replace("{g3}", match.group(3))
-            string = string.replace("{g4}", match.group(4))
-            string = string.replace("{g5}", match.group(5))
-            string = string.replace("{g6}", match.group(6))
-            string = string.replace("{g7}", match.group(7))
-            string = string.replace("{g8}", match.group(8))
-            string = string.replace("{g9}", match.group(9))
+            groups = re.findall(r"\{g(\d+)\}", string)
+            for i in groups:
+                try:
+                    string.replace("{g%s}" % i, match.group(i))
+                except Exception as e:
+                    pass
         except Exception, e:
             pass
         finally:
