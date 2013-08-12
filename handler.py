@@ -69,10 +69,28 @@ class BotHandler:
                         self.do_thing(cmds[i]["result"], 
                             {"channel": channel, "sender": sender}, x)
 
+    def do_rep(self, match, data, string):
+        try:
+            string = string.replace("{sender}", data["sender"])
+            string = string.replace("{chan}", data["channel"])
+            string = string.replace("{g1}", match.group(1))
+            string = string.replace("{g2}", match.group(2))
+            string = string.replace("{g3}", match.group(3))
+            string = string.replace("{g4}", match.group(4))
+            string = string.replace("{g5}", match.group(5))
+            string = string.replace("{g6}", match.group(6))
+            string = string.replace("{g7}", match.group(7))
+            string = string.replace("{g8}", match.group(8))
+            string = string.replace("{g9}", match.group(9))
+        finally:
+            return string
+
     def do_thing(self, thing, data, trigger):
         rtype = thing["type"]
         channel = data["channel"]
         sender = data["sender"]
+        if rtype == "nothing": return
+        # Message
         if rtype == "message":
             if thing["to"] == "REPLY":
                 if channel == "private":
@@ -80,7 +98,23 @@ class BotHandler:
                 else:
                     cto = channel
             else:
-                cto = thing["to"]
-            message = thing["content"]
+                cto = self.do_rep(trigger, data, thing["to"])
+            message = self.do_rep(trigger, data, thing["content"])
             self.connection.send_raw("PRIVMSG %s :%s" % (cto, message))
+        # Nick
+        if rtype == "nick":
+            self.connection.send_raw("NICK %s" % self.do_rep(trigger, data, thing["newnick"]))
+        # Join
+        if rtype == "join":
+            thing["chan"] = self.do_rep(trigger, data, thing["chan"])
+            if thing["chan"][0] != '#': thing["chan"] = "#%s" % thing["chan"]
+            thing["chan"] = thing["chan"].split(",")[0]
+            self.connection.send_raw("JOIN %s" % thing["chan"])
+        # Part
+        if rtype == "part":
+            thing["chan"] = self.do_rep(trigger, data, thing["chan"])
+            if thing["chan"][0] != '#': thing["chan"] = "#%s" % thing["chan"]
+            thing["chan"] = thing["chan"].split(",")[0]
+            self.connection.send_raw("PART %s" % thing["chan"])
+        
 
