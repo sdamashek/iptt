@@ -1,0 +1,10 @@
+{
+    "all": [
+        ".*"
+    ], 
+    "autojoin": [
+        "#botwar",
+        "#iptt",
+        "#iptt-fun"
+    ]
+}

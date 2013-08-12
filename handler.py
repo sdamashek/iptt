@@ -32,6 +32,13 @@ def mask_in_group(mask, group):
             return True
     return False
 
+def channel_in_group(channel, group):
+    chans = json.loads(open("channels.json").read())
+    for i in chans[group]:
+        if re.match(i, channel):
+            return True
+    return False
+
 class BotHandler:
     def __init__(self, connection):
         self.connection = connection
@@ -58,30 +65,37 @@ class BotHandler:
             else:
                 pass
         elif mtype == 'join':
-            pass
+            self.handle_join(mdata, mchannel, msender, mhostmask)
         elif mtype == 'part':
-            pass
+            self.handle_part(mdata, mchannel, msender, mhostmask)
         elif mtype == 'quit':
             pass
         elif mtype == 'kick':
             pass
 
-    def is_eligible(self, cmd, data, channel, sender, hostmask):
+    def do_eligible(self, cmd, data, channel, sender, hostmask):
         targs = cmd["triggerargs"]
         x = re.match(targs["data"], data)
         if x:
-            if (targs["chan"] == channel or targs["chan"] == "ANY"):
-                if mask_in_group(hostmask, cmd["triggerargs"]["group"]):
-                    return x
-        return False
+            if channel_in_group(channel, cmd["triggerargs"]["changroup"]):
+                if mask_in_group(hostmask, cmd["triggerargs"]["nickgroup"]):
+                    self.do_thing(cmd["result"], {"channel": channel,
+                        "sender": sender}, x)
 
     def handle_message(self, data, channel, sender, hostmask):
         cmds = get_commands('message')
         for i in cmds:
-            e = self.is_eligible(cmds[i], data, channel, sender, hostmask)
-            if e:
-                self.do_thing(cmds[i]["result"], 
-                        {"channel": channel, "sender": sender}, e)
+            self.do_eligible(cmds[i], data, channel, sender, hostmask)
+
+    def handle_join(self, data, channel, sender, hostmask):
+        cmds = get_commands('join')
+        for i in cmds:
+            self.do_eligible(cmds[i], data, channel, sender, hostmask)
+
+    def handle_part(self, data, channel, sender, hostmask):
+        cmds = get_commands('part')
+        for i in cmds:
+            self.do_eligible(cmds[i], data, channel, sender, hostmask)
 
     def do_rep(self, match, data, string):
         try:

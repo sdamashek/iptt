@@ -20,7 +20,7 @@ from os.path import basename
 from json import loads, dumps
 from handler import BotHandler
 import logging
-CHANNEL = "#iptt"
+import json
 NICK = "ipttbot"
 HOST = "irc.freenode.org"
 
@@ -47,17 +47,15 @@ class IrcBot(SingleServerIRCBot):
     def on_welcome(self, c, e):
         logging.info("Connected to server.")
         self.handler = BotHandler(c)
-        c.join(CHANNEL)
-        logging.info("Joined channel %s." % CHANNEL)
+        for i in json.loads(open("channels.json").read())["autojoin"]:
+            c.join(i)
+            logging.info("Joined channel %s." % i)
 
     def on_pubmsg(self, c, e):
         self.handle_msg('message', c, e)
 
     def on_privmsg(self, c, e):
         self.handle_msg('message', c, e)
-
-    def on_action(self, c, e):
-        self.handle_msg('action', c, e)
 
     def on_join(self, c, e):
         self.handle_msg('join', c, e)

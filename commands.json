@@ -1,15 +1,17 @@
 {
-    "sayhi":{
-        "trigger": "message",
+    "j":{"trigger":"message","triggerargs":{"data":"!join (.*)","nickgroup":"admin","changroup":"all"},"result":{"type":"join","chan":"{g1}"}},
+
+    "autoopadmins": {
+        "trigger": "join",
         "triggerargs": {
-            "data": "!hello (.*)",
-            "group": "all",
-            "chan": "ANY"
+            "data": ".*",
+            "nickgroup": "admin",
+            "changroup": "all"
         },
         "result": {
-            "type": "message",
-            "to": "REPLY",
-            "content": "Hello, {g1}!"
+            "type": "mode",
+            "chan": "{chan}",
+            "mode": "+o {sender}"
         }
     }
 }
