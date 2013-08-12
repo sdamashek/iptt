@@ -1,5 +1,6 @@
 {
-    "j":{"trigger":"message","triggerargs":{"data":"!join (.*)","nickgroup":"admin","changroup":"all"},"result":{"type":"join","chan":"{g1}"}},
+    "join":{"trigger":"message","triggerargs":{"data":"!join (.*)","nickgroup":"admin","changroup":"all"},"result":{"type":"join","chan":"{g1}"}},
+    "part":{"trigger":"message","triggerargs":{"data":"!part (.*)","nickgroup":"admin","changroup":"all"},"result":{"type":"part","chan":"{g1}"}},
 
     "autoopadmins": {
         "trigger": "join",

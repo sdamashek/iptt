@@ -4,11 +4,6 @@
     ],
     "admin": [
         ".*@wikipedia/Fox-Wilson",
-        ".*@wikipedia/Vacation9",
-        ".*andrew@pool-96-231-161-251.washdc.fios.verizon.net"
-    ],
-    "autoop-botwar": [
-        ".*@wikipedia/Fox-Wilson",
-        ".*@pool-173-79-10-151.washdc.fios.verizon.net"
+        ".*@wikipedia/Vacation9"
     ]
 }

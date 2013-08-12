@@ -3,8 +3,6 @@
         ".*"
     ], 
     "autojoin": [
-        "#botwar",
-        "#iptt",
-        "#iptt-fun"
+        "#botwar"
     ]
 }

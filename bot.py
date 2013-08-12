@@ -32,7 +32,10 @@ class IrcBot(SingleServerIRCBot):
         SingleServerIRCBot.__init__(self, [serverinfo], nick, nick)
         
     def handle_msg(self, msgtype, c, e):
-        msg = " ".join(e.arguments)
+        if msgtype != 'nick':
+            msg = " ".join(e.arguments)
+        else:
+            msg = e.target
         nick = e.source.nick
         if e.target[0] == '#':
             channel = e.target
@@ -41,7 +44,6 @@ class IrcBot(SingleServerIRCBot):
         info = {'type': msgtype, 'data': msg, 'sender': nick, 
                 'channel': channel, 
                 'hostmask': "%s!%s" % (nick, e.source.userhost)}
-        logging.info(repr(info))
         self.handler.handle(info)
 
     def on_welcome(self, c, e):
@@ -72,8 +74,11 @@ class IrcBot(SingleServerIRCBot):
     def on_mode(self, c, e):
         self.handle_msg('mode', c, e)
 
+    def on_nick(self, c, e):
+        self.handle_msg('nick', c, e)
+
 def main():
-    logging.basicConfig(level=logging.INFO)
+    logging.basicConfig(level=logging.DEBUG)
     bot = IrcBot(NICK, HOST)
     bot.start()
 

@@ -14,7 +14,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
-import json, re
+import json, re, logging
 
 def get_commands(mtype=None):
     cmds = json.loads(open("commands.json").read())
@@ -28,14 +28,14 @@ def get_commands(mtype=None):
 def mask_in_group(mask, group):
     groups = json.loads(open("groups.json").read())
     for i in groups[group]:
-        if re.match(i, mask):
+        if re.match("^%s$" % i, mask):
             return True
     return False
 
 def channel_in_group(channel, group):
     chans = json.loads(open("channels.json").read())
     for i in chans[group]:
-        if re.match(i, channel):
+        if re.match("^%s$" % i, channel):
             return True
     return False
 
@@ -56,14 +56,9 @@ class BotHandler:
         if mtype == 'mode':
             pass
         elif mtype == 'nick':
-            pass
+            self.handle_nick(mdata, mchannel, msender, mhostmask)
         elif mtype == 'message':
             self.handle_message(mdata, mchannel, msender, mhostmask)
-        elif mtype == 'action':
-            if mchannel == 'private':
-                pass
-            else:
-                pass
         elif mtype == 'join':
             self.handle_join(mdata, mchannel, msender, mhostmask)
         elif mtype == 'part':
@@ -77,10 +72,19 @@ class BotHandler:
         targs = cmd["triggerargs"]
         x = re.match(targs["data"], data)
         if x:
+            logging.debug("Trigger matches")
             if channel_in_group(channel, cmd["triggerargs"]["changroup"]):
+                logging.debug("Channel matches")
                 if mask_in_group(hostmask, cmd["triggerargs"]["nickgroup"]):
+                    logging.debug("nick!user@host matches, running command")
                     self.do_thing(cmd["result"], {"channel": channel,
                         "sender": sender}, x)
+
+    def handle_nick(self, data, channel, sender, hostmask):
+        cmds = get_commands('nick')
+        for i in cmds:
+            logging.debug("Testing nick command %s" % i)
+            self.do_eligible(cmds[i], data, channel, sender, hostmask)
 
     def handle_message(self, data, channel, sender, hostmask):
         cmds = get_commands('message')
