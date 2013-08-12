@@ -114,9 +114,9 @@ class BotHandler:
             groups = re.findall(r"\{g(\d+)\}", string)
             for i in groups:
                 try:
-                    string.replace("{g%s}" % i, match.group(i))
+                    string.replace("{g%s}" % i, match.group(int(i))
                 except Exception as e:
-                    pass
+                    logging.debug(repr(e))
         except Exception, e:
             pass
         finally:
