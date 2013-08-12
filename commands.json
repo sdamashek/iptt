@@ -1,84 +1,153 @@
-{
-    "join":{"trigger":"message","triggerargs":{"data":"{nick}: join channel (.*)","nickgroup":"admin","changroup":"all"},"result":{"type":"join","chan":"{g1}"}},
-    "part":{"trigger":"message","triggerargs":{"data":"{nick}: part channel (.*)","nickgroup":"admin","changroup":"all"},"result":{"type":"part","chan":"{g1}"}},
-    "aopa":{"trigger":"join","triggerargs":{"data":".*","nickgroup":"admin","changroup":"all"},"result":{"type":"mode","chan":"{chan}","mode":"+o {sender}"}},
-    "nick":{"trigger": "message","triggerargs": {"data": "{nick}: change nick to (.*)","nickgroup": "admin","changroup": "all"},"result": {"type": "nick","newnick": "{g1}"}},
-    "setmode": {"trigger": "message","triggerargs": {"data": "{nick}: set mode (.*)","nickgroup": "admin","changroup": "all"},"result": {"type": "mode","chan": "{chan}","mode": "{g1}"}},
-    "tell": {"trigger": "message","triggerargs":{"data": "say (.*) to (.*)","nickgroup":"admin","changroup":"private"},"result":{"type":"message","to":"{g2}","content":"{g1}"}},
-    "csrequest": {
-        "trigger": "message",
+[
+    {
         "triggerargs": {
-            "data": "{nick}: request (.*) on (.*)",
+            "changroup": "all",
             "nickgroup": "admin",
-            "changroup": "all"
+            "data": "{nick}: join channel (.*)"
         },
+        "trigger": "message",
         "result": {
-            "type": "message",
-            "to": "ChanServ",
-            "content": "{g1} {g2}"
+            "chan": "{g1}",
+            "type": "join"
         }
     },
-    "kickrequest": {
-        "trigger": "message",
+    {
         "triggerargs": {
-            "data": "{nick}: kick (.*) from (.*)",
+            "changroup": "all",
             "nickgroup": "admin",
-            "changroup": "all"
+            "data": "{nick}: request (.*) on (.*)"
         },
+        "trigger": "message",
         "result": {
-            "type": "kick",
+            "content": "{g1} {g2}",
+            "to": "ChanServ",
+            "type": "message"
+        }
+    },
+    {
+        "triggerargs": {
+            "changroup": "all",
+            "nickgroup": "admin",
+            "data": "{nick}: kick (.*) from (.*)"
+        },
+        "trigger": "message",
+        "result": {
             "chan": "{g2}",
+            "type": "kick",
             "nick": "{g1}"
         }
     },
-    "rejoinonkick": {
-        "trigger": "kick",
+    {
         "triggerargs": {
-            "data": ".*{nick}.*",
-            "nickgroup": "all",
-            "changroup": "all"
-        },
-        "result": {
-            "type": "join",
-            "chan": "{chan}"
-        }
-    },
-    "rejoinonremove": {
-        "trigger": "part",
-        "triggerargs": {
-            "data": "requested by .*",
-            "nickgroup": "all",
-            "changroup": "all"
-        },
-        "result": {
-            "type": "join",
-            "chan": "{chan}"
-        }
-    },
-    "removebans": {
-        "trigger": "message",
-        "triggerargs": {
-            "data": "{nick}: remove bans on (.*) in (.*)",
+            "changroup": "all",
             "nickgroup": "admin",
-            "changroup": "all"
+            "data": "{nick}: remove bans on (.*) in (.*)"
         },
+        "trigger": "message",
         "result": {
-            "type": "mode",
             "chan": "{g2}",
+            "type": "mode",
             "mode": "-qb {g1} {g1}"
         }
     },
-    "csfantasycmd": {
-        "trigger": "message",
+    {
         "triggerargs": {
-            "data": "ChanServ: (op|deop|voice|devoice)",
+            "changroup": "all",
             "nickgroup": "admin",
-            "changroup": "all"
+            "data": "{nick}: change nick to (.*)"
         },
+        "trigger": "message",
         "result": {
-            "type": "message",
+            "newnick": "{g1}",
+            "type": "nick"
+        }
+    },
+    {
+        "triggerargs": {
+            "changroup": "all",
+            "nickgroup": "admin",
+            "data": "{nick}: part channel (.*)"
+        },
+        "trigger": "message",
+        "result": {
+            "chan": "{g1}",
+            "type": "part"
+        }
+    },
+    {
+        "triggerargs": {
+            "changroup": "all",
+            "nickgroup": "admin",
+            "data": "ChanServ: (op|deop|voice|devoice)"
+        },
+        "trigger": "message",
+        "result": {
+            "content": "{g1} {chan} {sender}",
             "to": "ChanServ",
-            "content": "{g1} {chan} {sender}"
+            "type": "message"
+        }
+    },
+    {
+        "triggerargs": {
+            "changroup": "all",
+            "nickgroup": "all",
+            "data": "requested by .*"
+        },
+        "trigger": "part",
+        "result": {
+            "chan": "{chan}",
+            "type": "join"
+        }
+    },
+    {
+        "triggerargs": {
+            "changroup": "all",
+            "nickgroup": "admin",
+            "data": "{nick}: set mode (.*)"
+        },
+        "trigger": "message",
+        "result": {
+            "chan": "{chan}",
+            "type": "mode",
+            "mode": "{g1}"
+        }
+    },
+    {
+        "triggerargs": {
+            "changroup": "all",
+            "nickgroup": "admin",
+            "data": ".*"
+        },
+        "trigger": "join",
+        "result": {
+            "chan": "{chan}",
+            "type": "mode",
+            "mode": "+o {sender}"
+        }
+    },
+    {
+        "triggerargs": {
+            "changroup": "private",
+            "nickgroup": "admin",
+            "data": "say (.*) to (.*)"
+        },
+        "trigger": "message",
+        "result": {
+            "content": "{g1}",
+            "to": "{g2}",
+            "type": "message"
+        }
+    },
+    {
+        "triggerargs": {
+            "changroup": "all",
+            "nickgroup": "all",
+            "data": ".*{nick}.*"
+        },
+        "trigger": "kick",
+        "result": {
+            "chan": "{chan}",
+            "type": "join"
         }
     }
-}
+]
