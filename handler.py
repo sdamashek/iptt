@@ -112,9 +112,11 @@ class BotHandler:
             string = string.replace("{sender}", data["sender"])
             string = string.replace("{chan}", data["channel"])
             groups = re.findall(r"\{g(\d+)\}", string)
+            logging.debug(groups)
             for i in groups:
                 try:
                     string.replace("{g%s}" % i, match.group(int(i)))
+                    logging.debug("replacing {g%s} with %s" % (i, match.group(int(i))))
                 except Exception as e:
                     logging.debug(repr(e))
         except Exception, e:
