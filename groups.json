@@ -1,0 +1,9 @@
+{
+    "all": [
+        ".*"
+    ],
+    "admin": [
+        ".*@wikipedia/Fox-Wilson",
+        ".*@wikipedia/Vacation9"
+    ]
+}

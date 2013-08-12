@@ -25,6 +25,13 @@ def get_commands(mtype=None):
             newcmds[i] = cmds[i]
     return newcmds
 
+def mask_in_group(mask, group):
+    groups = json.loads(open("groups.json").read())
+    for i in groups[group]:
+        if re.match(i, mask):
+            return True
+    return False
+
 class BotHandler:
     def __init__(self, connection):
         self.connection = connection
@@ -33,6 +40,7 @@ class BotHandler:
         mtype = opts['type']
         mdata = opts['data']
         msender = opts['sender']
+        mhostmask = opts['hostmask']
         if 'channel' in opts:
             mchannel = opts['channel']
         else:
@@ -43,7 +51,7 @@ class BotHandler:
         elif mtype == 'nick':
             pass
         elif mtype == 'message':
-            self.handle_message(mdata, mchannel, msender)
+            self.handle_message(mdata, mchannel, msender, mhostmask)
         elif mtype == 'action':
             if mchannel == 'private':
                 pass
@@ -58,16 +66,22 @@ class BotHandler:
         elif mtype == 'kick':
             pass
 
-    def handle_message(self, data, channel, sender):
+    def is_eligible(self, cmd, data, channel, sender, hostmask):
+        targs = cmd["triggerargs"]
+        x = re.match(targs["data"], data)
+        if x:
+            if (targs["chan"] == channel or targs["chan"] == "ANY"):
+                if mask_in_group(hostmask, cmd["triggerargs"]["group"]):
+                    return x
+        return False
+
+    def handle_message(self, data, channel, sender, hostmask):
         cmds = get_commands('message')
         for i in cmds:
-            targs = cmds[i]["triggerargs"]
-            x = re.match(targs["data"], data)
-            if x:
-                if (targs["nick"] == sender or targs["nick"] == "ANY"):
-                    if (targs["chan"] == channel or targs["chan"] == "ANY"):
-                        self.do_thing(cmds[i]["result"], 
-                            {"channel": channel, "sender": sender}, x)
+            e = self.is_eligible(cmds[i], data, channel, sender, hostmask)
+            if e:
+                self.do_thing(cmds[i]["result"], 
+                        {"channel": channel, "sender": sender}, e)
 
     def do_rep(self, match, data, string):
         try:
@@ -116,5 +130,15 @@ class BotHandler:
             if thing["chan"][0] != '#': thing["chan"] = "#%s" % thing["chan"]
             thing["chan"] = thing["chan"].split(",")[0]
             self.connection.send_raw("PART %s" % thing["chan"])
+        # Mode
+        if rtype == "mode":
+            thing["mode"] = self.do_rep(trigger, data, thing["mode"])
+            thing["chan"] = self.do_rep(trigger, data, thing["chan"])
+            self.connection.send_raw("MODE %s %s" % (thing["chan"], thing["mode"]))
+        # Kick
+        if rtype == "kick":
+            thing["nick"] = self.do_rep(trigger, data, thing["nick"])
+            thing["chan"] = self.do_rep(trigger, data, thing["chan"])
+            self.connection.send_raw("KICK %s %s" % (thing["chan"], thing["nick"]))
         
 

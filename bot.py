@@ -39,7 +39,8 @@ class IrcBot(SingleServerIRCBot):
         else:
             channel = "private"
         info = {'type': msgtype, 'data': msg, 'sender': nick, 
-                'channel': channel}
+                'channel': channel, 
+                'hostmask': "%s!%s" % (nick, e.source.userhost)}
         logging.info(repr(info))
         self.handler.handle(info)
 

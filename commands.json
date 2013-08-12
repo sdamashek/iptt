@@ -1,51 +1,15 @@
 {
-    "sayhi": {
+    "sayhi":{
         "trigger": "message",
         "triggerargs": {
             "data": "!hello (.*)",
-            "nick": "ANY",
+            "group": "all",
             "chan": "ANY"
         },
         "result": {
             "type": "message",
             "to": "REPLY",
             "content": "Hello, {g1}!"
-        }
-    },
-    "chnick": {
-        "trigger": "message",
-        "triggerargs": {
-            "data": "!nick (.*)",
-            "nick": "ANY",
-            "chan": "ANY"
-        },
-        "result": {
-            "type": "nick",
-            "newnick": "{g1}"
-        }
-    },
-    "chjoin": {
-        "trigger": "message",
-        "triggerargs": {
-            "data": "!join (.*)",
-            "nick": "ANY",
-            "chan": "ANY"
-        },
-        "result": {
-            "type": "join",
-            "chan": "{g1}"
-        }
-    },
-    "chpart": {
-        "trigger": "message",
-        "triggerargs": {
-            "data": "!part (.*)",
-            "nick": "ANY",
-            "chan": "ANY"
-        },
-        "result": {
-            "type": "part",
-            "chan": "{g1}"
         }
     }
 }
