@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3 -OO
 # Copyright (C) 2013 Samuel Damashek
 #
 # This program is free software; you can redistribute it and/or
@@ -16,18 +16,18 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 from irc.bot import ServerSpec, SingleServerIRCBot
-from os.path import basename
-from json import loads, dumps
 from handler import BotHandler
 import logging
 import json
+
+
 class IrcBot(SingleServerIRCBot):
     def __init__(self, nick, host, nickpass, port=6667):
         """Setup everything.
         """
         serverinfo = ServerSpec(host, port, nickpass)
         SingleServerIRCBot.__init__(self, [serverinfo], nick, nick)
-        
+
     def handle_msg(self, msgtype, c, e):
         if msgtype != 'nick':
             msg = " ".join(e.arguments)
@@ -38,8 +38,8 @@ class IrcBot(SingleServerIRCBot):
             channel = e.target
         else:
             channel = "private"
-        info = {'type': msgtype, 'data': msg, 'sender': nick, 
-                'channel': channel, 
+        info = {'type': msgtype, 'data': msg, 'sender': nick,
+                'channel': channel,
                 'hostmask': "%s!%s" % (nick, e.source.userhost)}
         self.handler.handle(info)
 
@@ -73,6 +73,7 @@ class IrcBot(SingleServerIRCBot):
 
     def get_version(self):
         return "IPTTBot -- https://github.com/Vacation9/iptt -- developed by Fox Wilson and Samuel Damashek"
+
 
 def main():
     logging.basicConfig(level=logging.DEBUG)
