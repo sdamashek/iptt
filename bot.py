@@ -46,7 +46,9 @@ class IrcBot(SingleServerIRCBot):
         try:
             self.handler.handle(info)
         except Exception as ex:
-            trace = traceback.extract_tb(ex.__traceback__)[-1]
+            trace = traceback.extract_tb(ex.__traceback__)
+            logging.error(trace)
+            trace = trace[-1]
             trace = [basename(trace[0]), trace[1]]
             name = type(ex).__name__
             c.privmsg(channel, '%s in %s on line %s: %s' % (name, trace[0], trace[1], str(ex)))
