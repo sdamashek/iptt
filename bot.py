@@ -15,10 +15,12 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-from irc.bot import ServerSpec, SingleServerIRCBot
-from handler import BotHandler
 import logging
 import json
+import traceback
+from os.path import basename
+from irc.bot import ServerSpec, SingleServerIRCBot
+from handler import BotHandler
 
 
 class IrcBot(SingleServerIRCBot):
@@ -41,7 +43,13 @@ class IrcBot(SingleServerIRCBot):
         info = {'type': msgtype, 'data': msg, 'sender': nick,
                 'channel': channel,
                 'hostmask': "%s!%s" % (nick, e.source.userhost)}
-        self.handler.handle(info)
+        try:
+            self.handler.handle(info)
+        except Exception as ex:
+            trace = traceback.extract_tb(ex.__traceback__)[-1]
+            trace = [basename(trace[0]), trace[1]]
+            name = type(ex).__name__
+            c.privmsg(channel, '%s in %s on line %s: %s' % (name, trace[0], trace[1], str(ex)))
 
     def on_welcome(self, c, e):
         logging.info("Connected to server.")
