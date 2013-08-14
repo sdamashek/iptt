@@ -19,7 +19,7 @@ import logging
 
 
 def get_commands(mtype=None):
-    cmds = json.loads(open("commands.json").read())
+    cmds = json.load(open("commands.json"))
     if mtype is None:
         return cmds
     newcmds = []
@@ -30,7 +30,7 @@ def get_commands(mtype=None):
 
 
 def mask_in_group(mask, group):
-    groups = json.loads(open("groups.json").read())
+    groups = json.load(open("groups.json"))
     for i in groups[group]:
         if re.match("^%s$" % i, mask):
             return True
@@ -38,7 +38,7 @@ def mask_in_group(mask, group):
 
 
 def channel_in_group(channel, group):
-    chans = json.loads(open("channels.json").read())
+    chans = json.load(open("channels.json"))
     for i in chans[group]:
         if re.match("^%s$" % i, channel):
             return True
@@ -113,7 +113,7 @@ class BotHandler:
 
     def do_rep(self, match, data, string):
         try:
-            conf = json.loads(open("config.json").read())
+            conf = json.load(open("config.json"))
             string = string.replace("{nick}", conf["nick"])
             string = string.replace("{sender}", data["sender"])
             string = string.replace("{chan}", data["channel"])
@@ -149,10 +149,11 @@ class BotHandler:
             self.connection.send_raw("PRIVMSG %s :%s" % (cto, message))
         # Nick
         if rtype == "nick":
-            config = json.loads(open("config.json").read())
+            config = json.load(open("config.json"))
             config["nick"] = self.do_rep(trigger, data, thing["newnick"])
             f = open("config.json", "w")
-            f.write(json.dumps(config))
+            json.dump(config, f, indent=True, sort_keys=True)
+            f.write("\n")
             f.close()
             self.connection.send_raw("NICK %s" % self.do_rep(trigger, data, thing["newnick"]))
         # Join

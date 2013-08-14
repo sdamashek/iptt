@@ -54,7 +54,7 @@ class IrcBot(SingleServerIRCBot):
     def on_welcome(self, c, e):
         logging.info("Connected to server.")
         self.handler = BotHandler(c)
-        for i in json.loads(open("channels.json").read())["autojoin"]:
+        for i in json.load(open("channels.json"))["autojoin"]:
             c.join(i)
             logging.info("Joined channel %s." % i)
 
@@ -85,7 +85,7 @@ class IrcBot(SingleServerIRCBot):
 
 def main():
     logging.basicConfig(level=logging.DEBUG)
-    conf = json.loads(open("config.json").read())
+    conf = json.load(open("config.json"))
     bot = IrcBot(conf["nick"], conf["host"], conf["nickpass"])
     bot.start()
 
