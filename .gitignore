@@ -1,4 +1,5 @@
 *.sw?
 *.py[co]
 config.json
+channels.json
 __pycache__
