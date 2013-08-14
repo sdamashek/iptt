@@ -6,7 +6,7 @@ If py then thon - flexible Python IRC bot
 Writing trigger/result definitions
 ----------------------------------
 Trigger/result pairs are written in json. The commands file as a whole is a JSON list. Each command is an object. Objects are structured like so:
-<code>
+```json
 {
     "trigger": "message|join|part|kick|mode",
     "triggerargs": {
@@ -19,7 +19,7 @@ Trigger/result pairs are written in json. The commands file as a whole is a JSON
         "type-specific-argument": "type-specific-value"
     }
 }
-</code>
+```
 Nick groups
 -----------
 Nickname groups are defined in groups.json. The groups file is an object. Each group contains zero or more nick!user@hosts (regular expressions can be used to match these).
