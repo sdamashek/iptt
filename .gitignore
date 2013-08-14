@@ -2,4 +2,6 @@
 *.py[co]
 config.json
 channels.json
+commands.json
+groups.json
 __pycache__
