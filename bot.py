@@ -29,6 +29,8 @@ class IrcBot(SingleServerIRCBot):
         """
         serverinfo = ServerSpec(host, port, nickpass)
         SingleServerIRCBot.__init__(self, [serverinfo], nick, nick)
+        #fix unicode problems
+        self.connection.buffer_class.errors = 'replace'
 
     def handle_msg(self, msgtype, c, e):
         if msgtype != 'nick':
