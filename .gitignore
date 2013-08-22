@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 *.py[cod]
 config.py
 
@@ -39,6 +40,10 @@ nosetests.xml
 *.*~
 
 # Other stuff
+*.sw?
+*.py[co]
 config.json
 channels.json
+commands.json
 groups.json
+__pycache__

@@ -1,4 +1,3 @@
-#!/usr/bin/python
 # Copyright (C) 2013 Samuel Damashek and Fox Wilson
 #
 # This program is free software; you can redistribute it and/or
@@ -14,35 +13,42 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
-import json, re, logging
+import json
+import re
+import logging
+
 
 def get_commands(mtype=None):
-    cmds = json.loads(open("commands.json").read())
-    if mtype is None: return cmds
+    cmds = json.load(open("commands.json"))
+    if mtype is None:
+        return cmds
     newcmds = []
     for i in cmds:
         if i["trigger"] == mtype:
             newcmds += [i]
     return newcmds
 
+
 def mask_in_group(mask, group):
-    groups = json.loads(open("groups.json").read())
+    groups = json.load(open("groups.json"))
     for i in groups[group]:
         if re.match("^%s$" % i, mask):
             return True
     return False
 
+
 def channel_in_group(channel, group):
-    chans = json.loads(open("channels.json").read())
+    chans = json.load(open("channels.json"))
     for i in chans[group]:
         if re.match("^%s$" % i, channel):
             return True
     return False
 
+
 class BotHandler:
     def __init__(self, connection):
         self.connection = connection
-    
+
     def handle(self, opts):
         mtype = opts['type']
         mdata = opts['data']
@@ -77,7 +83,7 @@ class BotHandler:
                 if mask_in_group(hostmask, cmd["triggerargs"]["nickgroup"]):
                     logging.debug("nick!user@host matches, running command")
                     self.do_thing(cmd["result"], {"channel": channel,
-                        "sender": sender}, x)
+                                                  "sender": sender}, x)
 
     def handle_kick(self, data, channel, sender, hostmask):
         cmds = get_commands('kick')
@@ -107,7 +113,7 @@ class BotHandler:
 
     def do_rep(self, match, data, string):
         try:
-            conf = json.loads(open("config.json").read())
+            conf = json.load(open("config.json"))
             string = string.replace("{nick}", conf["nick"])
             string = string.replace("{sender}", data["sender"])
             string = string.replace("{chan}", data["channel"])
@@ -119,7 +125,7 @@ class BotHandler:
                     logging.debug("replacing {g%s} with %s" % (i, match.group(int(i))))
                 except Exception as e:
                     logging.debug(repr(e))
-        except Exception, e:
+        except Exception as e:
             pass
         finally:
             return string
@@ -128,7 +134,8 @@ class BotHandler:
         rtype = thing["type"]
         channel = data["channel"]
         sender = data["sender"]
-        if rtype == "nothing": return
+        if rtype == "nothing":
+            return
         # Message
         if rtype == "message":
             if thing["to"] == "REPLY":
@@ -142,35 +149,40 @@ class BotHandler:
             self.connection.send_raw("PRIVMSG %s :%s" % (cto, message))
         # Nick
         if rtype == "nick":
-            config = json.loads(open("config.json").read())
+            config = json.load(open("config.json"))
             config["nick"] = self.do_rep(trigger, data, thing["newnick"])
             f = open("config.json", "w")
-            f.write(json.dumps(config))
+            json.dump(config, f, indent=True, sort_keys=True)
+            f.write("\n")
             f.close()
             self.connection.send_raw("NICK %s" % self.do_rep(trigger, data, thing["newnick"]))
         # Join
         if rtype == "join":
             thing["chan"] = self.do_rep(trigger, data, thing["chan"])
-            if thing["chan"][0] != '#': thing["chan"] = "#%s" % thing["chan"]
+            if thing["chan"][0] != '#':
+                thing["chan"] = "#%s" % thing["chan"]
             thing["chan"] = thing["chan"].split(",")[0]
             self.connection.send_raw("JOIN %s" % thing["chan"])
         # Part
         if rtype == "part":
             thing["chan"] = self.do_rep(trigger, data, thing["chan"])
-            if thing["chan"][0] != '#': thing["chan"] = "#%s" % thing["chan"]
+            if thing["chan"][0] != '#':
+                thing["chan"] = "#%s" % thing["chan"]
             thing["chan"] = thing["chan"].split(",")[0]
             self.connection.send_raw("PART %s" % thing["chan"])
         # Mode
         if rtype == "mode":
             thing["mode"] = self.do_rep(trigger, data, thing["mode"])
             thing["chan"] = self.do_rep(trigger, data, thing["chan"])
-            if thing["chan"][0] != '#': thing["chan"] = "#%s" % thing["chan"]
+            if thing["chan"][0] != '#':
+                thing["chan"] = "#%s" % thing["chan"]
             thing["chan"] = thing["chan"].split(",")[0]
             self.connection.send_raw("MODE %s %s" % (thing["chan"], thing["mode"]))
         # Kick
         if rtype == "kick":
             thing["nick"] = self.do_rep(trigger, data, thing["nick"])
             thing["chan"] = self.do_rep(trigger, data, thing["chan"])
-            if thing["chan"][0] != '#': thing["chan"] = "#%s" % thing["chan"]
+            if thing["chan"][0] != '#':
+                thing["chan"] = "#%s" % thing["chan"]
             thing["chan"] = thing["chan"].split(",")[0]
             self.connection.send_raw("KICK %s %s" % (thing["chan"], thing["nick"]))
