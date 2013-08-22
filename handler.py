@@ -60,7 +60,7 @@ class BotHandler:
             mchannel = 'private'
         # long branchy thingy
         if mtype == 'mode':
-            pass
+            self.handle_mode(mdata, mchannel, msender, mhostmask)
         elif mtype == 'nick':
             self.handle_nick(mdata, mchannel, msender, mhostmask)
         elif mtype == 'message':
@@ -108,6 +108,11 @@ class BotHandler:
 
     def handle_part(self, data, channel, sender, hostmask):
         cmds = get_commands('part')
+        for i in cmds:
+            self.do_eligible(i, data, channel, sender, hostmask)
+
+    def handle_mode(self, data, channel, sender, hostmask):
+        cmds = get_commands('mode')
         for i in cmds:
             self.do_eligible(i, data, channel, sender, hostmask)
 
