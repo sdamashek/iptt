@@ -37,3 +37,8 @@ nosetests.xml
 
 #gedit temp files
 *.*~
+
+# Other stuff
+config.json
+channels.json
+groups.json
